@@ -20,6 +20,8 @@ Welcome! This repository is designed to help you learn Docker and build containe
 
 3. **You're Ready!** Docker and Docker Compose are pre-installed and configured.
 
+> ⚠️ **Important:** If you get a "permission denied" error when running Docker commands, see the [Troubleshooting Guide](TROUBLESHOOTING.md#docker-permission-denied) or rebuild your container: Command Palette → "Codespaces: Rebuild Container"
+
 ### Alternative: Local Development
 
 If you prefer to work locally, you'll need:
