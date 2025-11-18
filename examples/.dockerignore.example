@@ -1,0 +1,45 @@
+# Dockerignore Example
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+
+# Development files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+logs
+*.log
+
+# Dependencies (reinstall in container)
+node_modules/
+__pycache__/
+*.pyc
+venv/
+env/
+
+# Test files
+tests/
+test/
+*.test.js
+*.spec.js
+
+# Build artifacts
+dist/
+build/
+target/

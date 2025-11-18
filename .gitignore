@@ -1,0 +1,30 @@
+# Docker
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+
+REPO_OWNER_GUIDE.md
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# Build artifacts
+dist/
+build/
+*.tar
+*.gz
+
+# Environment variables
+.env
+.env.local
