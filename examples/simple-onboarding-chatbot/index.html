@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Navigator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chatbot-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .bot-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+            background-image: url('https://raw.githubusercontent.com/GraceBarbacias/landcraft_onboarding_chatbot/main/images/chatbot_onboarding%20(70%20x%2070%20px).png');
+            background-size: 25px 25px;
+            background-position: center;
+            background-repeat: no-repeat;
+}
+        }
+
+        .bot-text {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            line-height: 1.4;
+        }
+
+        .user-message {
+            text-align: right;
+        }
+
+        .user-text {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            display: inline-block;
+            max-width: 80%;
+            margin-left: 20%;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 124, 89, 0.4);
+        }
+
+        .link-btn {
+            background: linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 142, 35, 0.4);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .typing-dots {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-left: 45px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .restart-btn {
+            background: transparent;
+            color: #4a7c59;
+            border: 2px solid #4a7c59;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #chatInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #chatInput:focus {
+            border-color: #4a7c59;
+        }
+
+        #sendButton {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 60px;
+        }
+
+        #sendButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 124, 89, 0.4);
+        }
+
+        #sendButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 600px) {
+            .chatbot-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chat-header">
+            <h1>Onboarding Navigator</h1>
+            <p>If you're a PhD student starting in Land-CRAFT, I'll help you find what you're looking for!</p>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" id="chatInput" placeholder="Type your question here..." maxlength="200">
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Replace these URLs with resources relevant to your context
+        const resources = {
+            tutorials: {
+                name: "Tutorials & Guides",
+                url: "https://aarhusuniversitet-my.sharepoint.com/:f:/g/personal/au783075_uni_au_dk/EryIue8ynZlIuoFclyMfKBUBTxZjqgMdqcQxWzCRZaINlg?e=HKVuiD",
+                description: "Step-by-step guides and tutorials related to letter heads, AU credit card, access card, hotels, and other resources",
+                keywords: ["tutorial", "guide", "how to", "learn", "beginner", "step by step", "letterhead", "letter head", "help", "letter_head", "letterhead", "credit card", "creditcard", "credit_card", "airbnb", "air bnb", "air_bnb", "hotel","acommodation", "trip", "travel", "access card", "accesscard", "access_card", "SKI", "SKI_agreement", "SKI agreement", "SKIagreement"]
+            },
+            documentation: {
+                name: "Documentation",
+                url: "https://aarhusuniversitet-my.sharepoint.com/:f:/g/personal/au783075_uni_au_dk/En0Ij0DN3lZIqMfUPmLBCBQBkmUMOyrx9RkvfgWpq14NAQ?e=PtgeRi",
+                description: "Technical documentation and references for tools used in Land-CRAFT (Landscape_DNDC and more)",
+                keywords: ["documentation", "docs", "reference", "manual", "landscape_dndc", "dndc", "technical", "specification", "ldndc", "spotpy", "spotpy-ln"]
+            },
+            tools: {
+                name: "Tools & Software",
+                url: "https://aarhusuniversitet-my.sharepoint.com/:f:/g/personal/au783075_uni_au_dk/EmYfpKd6Cq1AkKhgwG7qNnkBfmtVrdNkfeIztA9it7w0tQ?e=eKqhGE",
+                description: "Useful tools and software downloads",
+                keywords: ["tool", "software", "program", "download", "application", "utility", "install", "github", "github copilot", "microsoft"]
+            },
+            groups_to_join: {
+                name: "Groups to Join",
+                url: "https://aarhusuniversitet-my.sharepoint.com/:f:/g/personal/au783075_uni_au_dk/EkAeni6o4gFMqbQP79TDOVABbwb0jNQHegjHyon58CvBTg?e=kykofh",
+                description: "Groups in Whatsapp and Teams",
+                keywords: ["group", "team", "whatsapp", "teams", "chat", "community", "join", "social", "network", "whatsapp", "teams"]
+            },
+            courses: {
+                name: "Courses",
+                url: "https://aarhusuniversitet-my.sharepoint.com/:f:/g/personal/au783075_uni_au_dk/EgNHK_rskIVFoOVxT8IiDEgBsv9_bTUIAhph6ziZwi2ehQ?e=WlVn4N",
+                description: "links to relevant courses",
+                keywords: ["course", "class", "training", "education", "learning", "study", "curriculum", "lesson", "courses"]
+            }
+        };
+
+        class Chatbot {
+            constructor() {
+                this.messagesContainer = document.getElementById('chatMessages');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.chatInput = document.getElementById('chatInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.conversationState = 'welcome';
+                this.setupInputHandlers();
+                this.init();
+            }
+
+            setupInputHandlers() {
+                // Send button click handler
+                this.sendButton.addEventListener('click', () => {
+                    this.handleUserInput();
+                });
+
+                // Enter key handler
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.handleUserInput();
+                    }
+                });
+            }
+
+            handleUserInput() {
+                const userText = this.chatInput.value.trim();
+                if (!userText) return;
+
+                // Add user message
+                this.addMessage(userText, false);
+                
+                // Clear input
+                this.chatInput.value = '';
+                
+                // Show typing indicator
+                this.showTypingIndicator();
+
+                setTimeout(() => {
+                    this.hideTypingIndicator();
+                    this.processUserQuery(userText);
+                }, 800);
+            }
+
+            processUserQuery(query) {
+                const matchedResources = this.detectKeywords(query);
+                
+                if (matchedResources.length === 1) {
+                    // Single match - go directly to resource
+                    this.showResourceLink(matchedResources[0]);
+                } else if (matchedResources.length > 1) {
+                    // Multiple matches - show options
+                    this.showMultipleMatches(matchedResources, query);
+                } else {
+                    // No matches - show helpful response
+                    this.showNoMatches(query);
+                }
+            }
+
+            detectKeywords(query) {
+                const queryLower = query.toLowerCase();
+                const matches = [];
+
+                Object.entries(resources).forEach(([key, resource]) => {
+                    const score = resource.keywords.reduce((acc, keyword) => {
+                        if (queryLower.includes(keyword.toLowerCase())) {
+                            return acc + 1;
+                        }
+                        return acc;
+                    }, 0);
+
+                    if (score > 0) {
+                        matches.push({ key, score, resource });
+                    }
+                });
+
+                // Sort by score (highest first) and return resource keys
+                return matches
+                    .sort((a, b) => b.score - a.score)
+                    .map(match => match.key);
+            }
+
+            showMultipleMatches(resourceKeys, originalQuery) {
+                const messageDiv = this.addMessage(`I found several resources that might help with "${originalQuery}". Which one interests you most?`);
+                
+                const options = resourceKeys.map(key => ({
+                    text: `📂 ${resources[key].name}`,
+                    action: key
+                }));
+
+                options.push({ text: "🎯 Show me everything", action: "browse_all" });
+                this.addOptions(options, messageDiv);
+            }
+
+            showNoMatches(query) {
+                const messageDiv = this.addMessage(`I couldn't find specific resources for "${query}", but here are all available options:`);
+                this.showAllResourcesInMessage(messageDiv);
+            }
+
+            showAllResourcesInMessage(messageDiv) {
+                const options = Object.entries(resources).map(([key, resource]) => ({
+                    text: `📂 ${resource.name}`,
+                    action: key
+                }));
+
+                this.addOptions(options, messageDiv);
+            }
+
+            init() {
+                this.showTypingIndicator();
+                setTimeout(() => {
+                    this.hideTypingIndicator();
+                    this.showWelcomeMessage();
+                    this.scrollToTop();
+                }, 1000);
+            }
+
+            showTypingIndicator() {
+                this.typingIndicator.style.display = 'flex';
+            }
+
+            hideTypingIndicator() {
+                this.typingIndicator.style.display = 'none';
+            }
+
+            addMessage(content, isBot = true, shouldScroll = true) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+
+                if (isBot) {
+                    messageDiv.innerHTML = `
+                        <div class="bot-message">
+                            <div class="bot-avatar"></div>
+                            <div class="bot-text">${content}</div>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="user-message">
+                            <div class="user-text">${content}</div>
+                        </div>
+                    `;
+                }
+
+                this.messagesContainer.insertBefore(messageDiv, this.typingIndicator);
+                if (shouldScroll) {
+                    this.scrollToBottom();
+                }
+                return messageDiv;
+            }
+
+            addOptions(options, messageDiv) {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option.text;
+                    button.onclick = () => this.handleOption(option);
+                    optionsDiv.appendChild(button);
+                });
+
+                messageDiv.querySelector('.bot-text').appendChild(optionsDiv);
+            }
+
+            showWelcomeMessage() {
+                const messageDiv = this.addMessage("Hi there! 👋 I'm here to help you navigate our resources. You can either click an option below or type what you're looking for:", true, false);
+                
+                // Icon mapping for different resource types
+                const iconMap = {
+                    tutorials: "📚",
+                    documentation: "📖",
+                    examples: "📋",
+                    tools: "🔧",
+                    groups_to_join: "👥",
+                    courses: "🎓"
+                };
+                
+                // Generate options dynamically from resources
+                const options = Object.entries(resources).map(([key, resource]) => ({
+                    text: `${iconMap[key] || "�"} ${resource.name}`,
+                    action: key
+                }));
+                
+                // Add the "show everything" option
+                options.push({ text: "🎯 I'm not sure, show me everything", action: "browse_all" });
+
+                this.addOptions(options, messageDiv);
+            }
+
+            handleOption(option) {
+                // Add user message
+                this.addMessage(option.text, false);
+
+                // Show typing indicator
+                this.showTypingIndicator();
+
+                setTimeout(() => {
+                    this.hideTypingIndicator();
+                    this.handleUserChoice(option.action);
+                }, 800);
+            }
+
+            handleUserChoice(action) {
+                // Handle special actions
+                if (action === 'browse_all') {
+                    this.showAllResources();
+                    return;
+                }
+                if (action === 'restart') {
+                    this.restart();
+                    return;
+                }
+                
+                // Handle any resource dynamically
+                if (resources[action]) {
+                    this.showResourceLink(action);
+                } else {
+                    // Fallback for unknown actions
+                    this.showAllResources();
+                }
+            }
+
+
+            showResourceLink(resourceKey) {
+                const resource = resources[resourceKey];
+                if (!resource) return;
+
+                const messageDiv = this.addMessage(`Perfect! Here's your ${resource.name.toLowerCase()}:`);
+                
+                const linksHTML = `
+                    <div style="margin-top: 15px;">
+                        <a href="${resource.url}" target="_blank" class="link-btn">
+                            📂 Open ${resource.name}
+                        </a>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                            ${resource.description}
+                        </p>
+                    </div>
+                    <button class="restart-btn" onclick="chatbot.handleOption({text: '🏠 Back to main menu', action: 'restart'})">
+                        🏠 Back to main menu
+                    </button>
+                `;
+
+                messageDiv.querySelector('.bot-text').innerHTML += linksHTML;
+            }
+
+            showAllResources() {
+                const messageDiv = this.addMessage("Here are all our available resources. Click any link to explore:");
+                
+                let linksHTML = '<div style="margin-top: 15px;">';
+                Object.entries(resources).forEach(([key, resource]) => {
+                    linksHTML += `
+                        <a href="${resource.url}" target="_blank" class="link-btn" style="display: block; margin-bottom: 10px;">
+                            📂 ${resource.name}
+                        </a>
+                        <p style="margin-bottom: 15px; font-size: 0.85em; color: #666; padding-left: 10px;">
+                            ${resource.description}
+                        </p>
+                    `;
+                });
+                linksHTML += '</div>';
+                
+                linksHTML += `
+                    <button class="restart-btn" onclick="chatbot.handleOption({text: '🏠 Back to main menu', action: 'restart'})">
+                        🏠 Back to main menu
+                    </button>
+                `;
+
+                messageDiv.querySelector('.bot-text').innerHTML += linksHTML;
+            }
+
+            restart() {
+                this.messagesContainer.innerHTML = '<div class="typing-indicator" id="typingIndicator"><div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>';
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.conversationState = 'welcome';
+                
+                setTimeout(() => {
+                    this.hideTypingIndicator();
+                    this.showWelcomeMessage();
+                }, 500);
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                }, 100);
+            }
+
+            scrollToTop() {
+                setTimeout(() => {
+                    this.messagesContainer.scrollTop = 0;
+                }, 100);
+            }
+        }
+
+        // Initialize the chatbot when page loads
+        let chatbot;
+        window.addEventListener('DOMContentLoaded', () => {
+            chatbot = new Chatbot();
+        });
+    </script>
+</body>
+</html>
