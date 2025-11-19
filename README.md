@@ -44,8 +44,8 @@ docker run -d -p 8080:80 simple-web
 
 Then open the forwarded port to see your web page!
 
-### 2. Python Flask Application (`examples/python-app/`)
-A Python web application using Flask.
+### 2. Python Application (`examples/python-app/`)
+A Python web application.
 
 ```bash
 cd examples/python-app
@@ -54,7 +54,7 @@ docker run -d -p 5000:5000 python-app
 ```
 
 ### 3. Multi-Container App with Docker Compose (`examples/docker-compose-example/`)
-A multi-service application with nginx and Redis.
+A multi-service application with Flask and Redis.
 
 ```bash
 cd examples/docker-compose-example

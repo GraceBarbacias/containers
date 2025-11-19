@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boredom Buster - Docker Compose</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Boredom Buster</h1>
+        <p class="subtitle">Powered by Flask + Redis in Docker Compose</p>
+        
+        <div id="activity-card" class="hidden">
+            <h2 id="activity-name">Activity</h2>
+            <span id="activity-category" class="category-badge">Category</span>
+            <button onclick="markComplete()">✓ Mark Complete</button>
+        </div>
+        
+        <button id="suggest-btn" onclick="getSuggestion()">🎯 Get Suggestion</button>
+        
+        <div class="stats">
+            <h3>📊 Statistics (stored in Redis)</h3>
+            <div id="stats-content">
+                <p>Total Suggestions: <strong id="total-suggestions">0</strong></p>
+                <p>Total Completed: <strong id="total-completed">0</strong></p>
+                <div id="activity-stats"></div>
+            </div>
+            <button onclick="resetStats()" class="reset-btn">🔄 Reset Stats</button>
+        </div>
+
+    <script>
+        let currentActivity = null;
+
+        async function getSuggestion() {
+            const response = await fetch('/suggest');
+            currentActivity = await response.json();
+            
+            document.getElementById('activity-name').textContent = currentActivity.name;
+            document.getElementById('activity-category').textContent = currentActivity.category;
+            document.getElementById('activity-card').classList.remove('hidden');
+            
+            await updateStats();
+        }
+
+        async function markComplete() {
+            if (!currentActivity) return;
+            
+            await fetch('/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: currentActivity.name})
+            });
+            
+            document.getElementById('activity-card').classList.add('hidden');
+            currentActivity = null;
+            await updateStats();
+        }
+
+        async function updateStats() {
+            const response = await fetch('/stats');
+            const stats = await response.json();
+            
+            document.getElementById('total-suggestions').textContent = stats.total_suggestions;
+            document.getElementById('total-completed').textContent = stats.total_completed;
+            
+            const activityStats = document.getElementById('activity-stats');
+            activityStats.innerHTML = '<h4>Per Activity:</h4>';
+            stats.activities.forEach(act => {
+                if (act.suggested > 0 || act.completed > 0) {
+                    activityStats.innerHTML += `<p><em>${act.name}</em>: ${act.suggested} suggested, ${act.completed} completed</p>`;
+                }
+            });
+        }
+
+        async function resetStats() {
+            if (confirm('Are you sure you want to reset all statistics?')) {
+                await fetch('/reset', {
+                    method: 'POST'
+                });
+                await updateStats();
+            }
+        }
+
+        // Load stats on page load
+        updateStats();
+    </script>
+</body>
+</html>

@@ -50,21 +50,52 @@ class GDDCalculator(BaseHTTPRequestHandler):
         var tmin = document.getElementById('tmin').value;
         var tbase = document.getElementById('tbase').value;
         
-        // Calculate GDD directly in JavaScript
-        var tavg = (parseFloat(tmax) + parseFloat(tmin)) / 2;
-        var gdd = Math.max(0, tavg - parseFloat(tbase));
-        
-        document.getElementById('result').style.display = 'block';
-        document.getElementById('result').innerHTML = 
-            '<h3>Results:</h3>' +
-            '<p><strong>Daily GDD:</strong> ' + gdd.toFixed(2) + ' Celsius-days</p>' +
-            '<p><strong>Average Temp:</strong> ' + tavg.toFixed(2) + ' Celsius</p>' +
-            '<p><strong>Formula:</strong> (Tmax + Tmin) / 2 - Tbase</p>';
+        fetch('/calculate?tmax=' + tmax + '&tmin=' + tmin + '&tbase=' + tbase)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('result').innerHTML = 
+                    '<h3>Results:</h3>' +
+                    '<p><strong>Daily GDD:</strong> ' + data.gdd + ' Celsius-days</p>' +
+                    '<p><strong>Average Temp:</strong> ' + data.tavg + ' Celsius</p>' +
+                    '<p><strong>Formula:</strong> (Tmax + Tmin) / 2 - Tbase</p>';
+            });
     }
     </script>
 </body>
 </html>'''
             self.wfile.write(html.encode())
+            
+        elif parsed_path.path == '/calculate':
+            params = parse_qs(parsed_path.query)
+            
+            try:
+                tmax = float(params.get('tmax', [0])[0])
+                tmin = float(params.get('tmin', [0])[0])
+                tbase = float(params.get('tbase', [0])[0])
+                
+                # Calculate GDD in Python
+                tavg = (tmax + tmin) / 2
+                gdd = max(0, tavg - tbase)
+                
+                result = {
+                    'gdd': round(gdd, 2),
+                    'tavg': round(tavg, 2),
+                    'tmax': tmax,
+                    'tmin': tmin,
+                    'tbase': tbase
+                }
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode())
+                
+            except (ValueError, IndexError) as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Invalid parameters'}).encode())
             
         else:
             self.send_response(404)
