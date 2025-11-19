@@ -1,13 +1,15 @@
-# Example: Python Application
+# Example: Simple Python Application
+# Uses only Python standard library - no external dependencies needed
 FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
+# Copy the Python application
 COPY app.py .
 
-EXPOSE 5000
+# Expose port 8000
+EXPOSE 8000
 
+# Run the application
 CMD ["python", "app.py"]
