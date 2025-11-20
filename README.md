@@ -50,7 +50,7 @@ A Python web application.
 ```bash
 cd examples/python-app
 docker build -t python-app .
-docker run -d -p 5000:5000 python-app
+docker run -d -p 8000:8000 python-app
 ```
 
 ### 3. Multi-Container App with Docker Compose (`examples/docker-compose-example/`)
